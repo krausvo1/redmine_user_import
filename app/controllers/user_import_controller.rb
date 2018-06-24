@@ -1,8 +1,7 @@
 require 'tempfile'
+require 'csv'
 
 class UserImportController < ApplicationController
-  unloadable
-
   before_action :require_admin
 
   USER_ATTRS = [:login, :password, :lastname, :firstname, :mail, :admin]
