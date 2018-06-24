@@ -1,8 +1,14 @@
 = user_import
 
-http://www.redmine.org/plugins/user_import_plugin
-https://github.com/shrkw/redmine_user_import
+Redmine Plugin for importing users from a csv file. Forked from
+- https://github.com/shrkw/redmine_user_import
+- http://www.redmine.org/plugins/user_import_plugin
 
+and modified to work with recent (3.4) version of Redmine.
+
+
+
+== More credits from the original fork
 Inspired and copied by:
 - http://www.martinliu.info/2009/04/redmine_importer-redmine-csv-import-plugin/
 - http://tech.lampetty.net/tech/index.php/archives/285

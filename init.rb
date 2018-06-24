@@ -2,10 +2,10 @@ require 'redmine'
 
 Redmine::Plugin.register :redmine_user_import do
   name 'Redmine User Import plugin'
-  author 'Hiroyuki SHIRAKAWA'
+  author 'Hiroyuki SHIRAKAWA, Thorsten-Michael Deinert'
   description 'User import from csv'
-  version '0.1.0'
-  url 'https://github.com/shrkw/redmine_user_import'
+  version '0.2.0'
+  url 'https://github.com/thorsten-de/redmine_user_import'
   author_url 'http://twitter.com/#!/shrkwh, http://d.hatena.ne.jp/shrkw/'
 
 #  permission :import_user_csv, :user_import => :index
