@@ -1,6 +1,6 @@
 de:
 
-  user_import: "Benutzer aus CSV importieren"
+  user_import: "Benutzer importieren"
   # index view
   label_user_upload_notice: "Eine CSV zum Import auswählen. Die erste Zeile muss eine Kopfzeile mit den Spaltennamen sein."
   label_user_upload_format: "Einstellungen zum Importieren der Datei."
