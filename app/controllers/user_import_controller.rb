@@ -3,8 +3,56 @@ require 'csv'
 
 class UserImportController < ApplicationController
   before_action :require_admin
+  helper :custom_fields
 
-  USER_ATTRS = [:login, :password, :lastname, :firstname, :mail, :admin]
+
+  USER_ATTRS = [:login, :password, :lastname, :firstname, :mail]
+
+  PARSER = {
+    "csv" => ->(field) {
+      ->(row){ row[field] }
+    },
+    "val" => ->(value) {
+      ->(row){ value }
+    }
+    "gen_passwd" => ->(_) {
+      ->(row){ "passwd" }
+    },
+    "gen_login" => ->(row) {
+      
+    }
+  }
+
+  def get_parser(text)
+    type, val = text.split('|')
+    PARSER[type].(val)
+  end
+
+  def get_parsers(parser_defs)
+    parser_defs
+    .reject(&:blank?)
+    .map { |p| get_parser(p) }
+  end
+
+  def build_parsers(field_defs)
+    field_defs.transform_values do |parser_defs|
+      get_parsers(parser_defs)
+    end
+  end
+
+  def parse(parser, row)
+    result = parser.(row)
+    result.blank? ? nil : result
+  end
+
+  def parse_row(fields, row)
+    fields.transform_values do |parsers|
+      value = parsers.reduce(nil) do |value, parser|
+        value || parse(parser, row)
+      end
+      value
+    end
+  end
 
   def index
   end
@@ -42,24 +90,29 @@ class UserImportController < ApplicationController
     session[:importer_encoding] = encoding
 
     # display content
-    i = 0
     begin
-      CSV.foreach(tmpfile.path, {:headers=>true, :encoding=>encoding, :quote_char=>wrapper, :col_sep=>splitter}) do |row|
-        @samples[i] = row
-        i += 1
-      end # do
+      CSV.open(tmpfile.path, {:headers=>true, :encoding=>encoding, :quote_char=>wrapper, :col_sep=>splitter}) do |csv|
+        @samples = csv.read
+        @headers = csv.headers  
+      end
     rescue => ex
       flash.now[:error] = ex.message
     end
 
-    if @samples.size > 0
-      @headers = @samples[0].headers
-    end
 
     # fields
-    USER_ATTRS.each do |attr|
-      @attrs.push([t("field_#{attr}"), attr])
+    @attrs = USER_ATTRS.map do |attr|
+      [t("field_#{attr}"), attr]
     end
+
+    @custom_required = User
+      .new
+      .custom_field_values
+      .select(&:required?)
+      .map(&:custom_field)
+
+    @header_options = @headers.map { |h| ["#csv|{h}", h]}
+  
   end
 
   def result
@@ -79,7 +132,55 @@ class UserImportController < ApplicationController
     # CSV fields map
     fields_map = params[:fields_map]
     # DB attr map
-    attrs_map = fields_map.invert
+
+    parsers = fields_map.transform_values do |fields|
+      build_parsers(fields)
+    end
+
+    @handle_count = 0
+    @failed_rows = []
+
+    CSV.foreach(tmpfile.path, {:headers=>true, :encoding=>encoding, :quote_char=>wrapper, :col_sep=>splitter}) do |row|
+      user_values =  parse_row(parsers["user"], row).reject { |_, data| data.nil? }
+
+      user_values["custom_field_values"] =  parse_row(parsers["custom_fields"], row).reject { |_, data| data.nil? }
+
+      
+      user = User.find_by_mail(user_values["mail"])
+      unless user
+        
+        user = User.new({
+          language: Setting.default_language,
+        }.merge(user_values))        
+        user.login = generate_login(user)
+
+        p user
+        
+
+        if (!user.save()) then
+          logger.info(user.errors.full_messages)
+          @failed_rows << row
+        end
+
+        @handle_count += 1
+      end
+
+    end
+
+    
+    
+    render json: {count: @handle_count, failed: @failed_rows}
+  end
+
+  def generate_login(user) 
+    login = user.firstname[0] + user.lastname
+
+    count = User.where("login like ?", "#{login}%").count
+    count > 0 ? "#{login}#{count}" : login
+  end
+
+  def re2
+
 
     @handle_count = 0
     @failed_count = 0
@@ -116,5 +217,7 @@ class UserImportController < ApplicationController
       @headers = @failed_rows[0][1].headers
     end
   end
+
+  
 
 end

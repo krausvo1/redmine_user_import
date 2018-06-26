@@ -5,11 +5,46 @@
 
 <h2><%= t(:label_user_match_columns) %></h2>
 <%= form_tag({:action => 'result'}, {:multipart => true}) do %>
-    <fieldset class="box"><legend><%= t(:label_user_match_select) %></legend>
-    <% @headers.each do |column| %>
-         <label class="tabular"><%= column %>:
-         <%= select_tag "fields_map[#{column}]", options_for_select( @attrs, column ) %></label>
-    <% end %>
+    <fieldset class="tabular">
+        <legend><%= t(:label_user_match_select) %></legend>
+        <table>
+            <thead>
+                <tr>
+                    <th>Regel</th>
+                    <% @attrs.each do |attr, _| %>
+                        <th><%= attr %></th>
+                    <% end %>
+
+                    <% @custom_required.each do |field| %>
+                        <th><%= custom_field_name_tag(field) %></th>
+                    <% end %>
+                </tr>            
+            </thead>
+            <tbody>
+                <% (1..3).each do |i| %>
+                    <tr>
+                    <th><%= i %>.</th>
+                    <% @attrs.each do |attr, column| %>
+                        <td>
+                            <%= select_tag "fields_map[user][#{column}][]", options_for_select(prefix_options(@headers, "csv"), column ), include_blank: true %></label>
+                        </td>
+                    <% end %>
+
+                    <% @custom_required.each do |field| %>
+                        <td>
+                            <%= select_tag "fields_map[custom_fields]#{field.id}][]", grouped_options_for_select({
+                            "CSV-Felder" => prefix_options(@headers, "csv"),
+                            "Vordefinierte Werte" => prefix_options(field.possible_values, "val")}, field.id ), include_blank: true %></label>
+                        </td>
+                    <% end %>  
+
+                    </tr>
+                <% end %>
+            </tbody>
+        </table>
+
+
+  
     </fieldset>
 
     <%= submit_tag t(:button_user_submit) %>
