@@ -14,7 +14,7 @@ class UserImportController < ApplicationController
     },
     "val" => ->(value) {
       ->(row){ value }
-    }
+    },
     "gen_passwd" => ->(_) {
       ->(row){ "passwd" }
     },
