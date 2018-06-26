@@ -1,15 +1,16 @@
 de:
 
-  user_import: "User Import"
+  user_import: "Benutzer aus CSV importieren"
   # index view
   label_user_upload_notice: "Eine CSV zum Import auswählen. Die erste Zeile muss eine Kopfzeile mit den Spaltennamen sein."
-  label_user_upload_format: "Zeichenformat in der Datei. Leer lassen für automatische Erkennung"
+  label_user_upload_format: "Einstellungen zum Importieren der Datei."
+  label_user_upload_encoding: "Zeichenformat"
   label_user_upload_splitter: "Trennzeichen zwischen Feldern"
   label_user_upload_wrapper: "Inhalte sind eingschlossen zwischen"
   button_user_upload: "Datei hochladen"
 
   # match view
-  label_user_match_columns: "Spalten zuornen"
+  label_user_match_columns: "Spalten zuordnen"
   label_user_match_select: "Spalte auswählen"
   label_user_toplines: "Alle Einträge von %{original_filename}:"
   message_missing_imported_file: "Die importierte Date fehlt"

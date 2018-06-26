@@ -143,7 +143,8 @@ class UserImportController < ApplicationController
     end
 
     @handle_count = 0
-    @failed_rows = []
+    @line_count = 1
+    @failed_rows = Hash.new
 
     CSV.foreach(tmpfile.path, {:headers=>true, :encoding=>encoding, :quote_char=>wrapper, :col_sep=>splitter}) do |row|
       user_values =  parse_row(parsers["user"], row).reject { |_, data| data.nil? }
@@ -162,25 +163,27 @@ class UserImportController < ApplicationController
         }.merge(user_values))        
         user.login = generate_login(user)
 
-        p user
-        
-
         if user.save
           Mailer.account_information(user, user.password).deliver
         else
           logger.info(user.errors.full_messages)
-          @failed_rows << row
+          @failed_rows[@line_count] = row
         end
-
-
+        
         @handle_count += 1
       end
-
+      
+      @line_count += 1
     end
 
     
     
-    render json: {count: @handle_count, failed: @failed_rows}
+    @failed_count = @failed_rows.size
+    if @failed_count > 0
+      #failed_rows = @failed_rows.sort
+      @headers = @failed_rows.values.first.headers
+    end
+#    render json: {count: @handle_count, failed: @failed_rows}
   end
 
   def generate_login(user) 
@@ -230,7 +233,7 @@ class UserImportController < ApplicationController
     end # do
 
     if @failed_rows.size > 0
-      @failed_rows = @failed_rows.sort
+      #@failed_rows = @failed_rows.sort
       @headers = @failed_rows[0][1].headers
     end
   end
