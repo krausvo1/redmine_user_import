@@ -155,6 +155,9 @@ class UserImportController < ApplicationController
       unless user
         
         user = User.new({
+          generate_password: true,
+          must_change_passwd: true,
+          mail_notification: Setting.default_notification_option,
           language: Setting.default_language,
         }.merge(user_values))        
         user.login = generate_login(user)
@@ -162,10 +165,13 @@ class UserImportController < ApplicationController
         p user
         
 
-        if (!user.save()) then
+        if user.save
+          Mailer.account_information(user, user.password).deliver
+        else
           logger.info(user.errors.full_messages)
           @failed_rows << row
         end
+
 
         @handle_count += 1
       end
@@ -178,14 +184,16 @@ class UserImportController < ApplicationController
   end
 
   def generate_login(user) 
-    login = transliterate_and_capitalize(user.firstname[0]) + transliterate_and_capitalize(user.lastname)
+    login = prepare_name(user.firstname[0])[0] + prepare_name(user.lastname)
 
     count = User.where("login like ?", "#{login}%").count
     count > 0 ? "#{login}#{count}" : login
   end
 
-  def transliterate_and_capitalize(str)
-    I18n.transliterate(str).titleize
+  def prepare_name(str)
+    I18n.transliterate(str)
+        .gsub(/[^a-z0-9_\-@\.]/i, '')
+        .capitalize()
   end
 
   def re2
