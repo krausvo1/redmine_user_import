@@ -6,7 +6,7 @@ class UserImportController < ApplicationController
   helper :custom_fields
 
 
-  USER_ATTRS = [:login, :password, :lastname, :firstname, :mail]
+  USER_ATTRS = [:lastname, :firstname, :mail]
 
   PARSER = {
     "csv" => ->(field) {
@@ -62,17 +62,21 @@ class UserImportController < ApplicationController
     file = params[:file]
     splitter = params[:splitter]
     wrapper = params[:wrapper]
-    encoding = params[:encoding]
+    encoding = params[:encoding] unless params[:encoding].blank?
 
     @samples = []
     @headers = []
     @attrs = []
 
+    
+
     # save import file
     @original_filename = file.original_filename
     tmpfile = Tempfile.new("redmine_user_importer", :encoding =>'ascii-8bit')
     if tmpfile
-      tmpfile.write(file.read)
+      data = file.read
+      encoding ||= CharDet.detect(data)["encoding"]
+      tmpfile.write(data)
       tmpfile.close
       tmpfilename = File.basename(tmpfile.path)
       if !$tmpfiles
@@ -88,7 +92,6 @@ class UserImportController < ApplicationController
     session[:importer_splitter] = splitter
     session[:importer_wrapper] = wrapper
     session[:importer_encoding] = encoding
-
     # display content
     begin
       CSV.open(tmpfile.path, {:headers=>true, :encoding=>encoding, :quote_char=>wrapper, :col_sep=>splitter}) do |csv|
@@ -112,7 +115,9 @@ class UserImportController < ApplicationController
       .map(&:custom_field)
 
     @header_options = @headers.map { |h| ["#csv|{h}", h]}
-  
+    
+
+
   end
 
   def result
@@ -173,10 +178,14 @@ class UserImportController < ApplicationController
   end
 
   def generate_login(user) 
-    login = user.firstname[0] + user.lastname
+    login = transliterate_and_capitalize(user.firstname[0]) + transliterate_and_capitalize(user.lastname)
 
     count = User.where("login like ?", "#{login}%").count
     count > 0 ? "#{login}#{count}" : login
+  end
+
+  def transliterate_and_capitalize(str)
+    I18n.transliterate(str).titleize
   end
 
   def re2

@@ -6,7 +6,7 @@
 
 	<fieldset class="box"><legend><%= t(:label_user_upload_format) %></legend>
 		 <p><label><%=t(:label_user_upload_encoding)%></label>
-		<%= select_tag "encoding", options_for_select(Encoding.name_list)%></p>
+		<%= select_tag "encoding", options_for_select(Encoding.name_list), include_blank: "Auto"%></p>
 		
 		<p><label><%=t(:label_user_upload_splitter)%></label>
 		<%= text_field_tag "splitter", ',', {:size => 3, :maxlength => 1}%></p>
