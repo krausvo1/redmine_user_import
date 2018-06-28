@@ -1,5 +1,6 @@
 require 'redmine'
 require_dependency 'custom_fields_helper'
+require 'csv_parser'
 
 Redmine::Plugin.register :redmine_user_import do
   name 'Redmine User Import plugin'

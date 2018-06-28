@@ -8,51 +8,6 @@ class UserImportController < ApplicationController
 
   USER_ATTRS = [:login, :password, :lastname, :firstname, :mail]
 
-  PARSER = {
-    "csv" => ->(field) {
-      ->(row){ row[field] }
-    },
-    "val" => ->(value) {
-      ->(row){ value }
-    }
-    "gen_passwd" => ->(_) {
-      ->(row){ "passwd" }
-    },
-    "gen_login" => ->(row) {
-      
-    }
-  }
-
-  def get_parser(text)
-    type, val = text.split('|')
-    PARSER[type].(val)
-  end
-
-  def get_parsers(parser_defs)
-    parser_defs
-    .reject(&:blank?)
-    .map { |p| get_parser(p) }
-  end
-
-  def build_parsers(field_defs)
-    field_defs.transform_values do |parser_defs|
-      get_parsers(parser_defs)
-    end
-  end
-
-  def parse(parser, row)
-    result = parser.(row)
-    result.blank? ? nil : result
-  end
-
-  def parse_row(fields, row)
-    fields.transform_values do |parsers|
-      value = parsers.reduce(nil) do |value, parser|
-        value || parse(parser, row)
-      end
-      value
-    end
-  end
 
   def index
   end
@@ -133,29 +88,25 @@ class UserImportController < ApplicationController
     fields_map = params[:fields_map]
     # DB attr map
 
-    parsers = fields_map.transform_values do |fields|
-      build_parsers(fields)
-    end
+    user_parser = RedmineUserImport::CsvParser.new fields_map[:user]
+    custom_field_parser = RedmineUserImport::CsvParser.new fields_map[:custom_fields]
 
     @handle_count = 0
     @failed_rows = []
 
     CSV.foreach(tmpfile.path, {:headers=>true, :encoding=>encoding, :quote_char=>wrapper, :col_sep=>splitter}) do |row|
-      user_values =  parse_row(parsers["user"], row).reject { |_, data| data.nil? }
-
-      user_values["custom_field_values"] =  parse_row(parsers["custom_fields"], row).reject { |_, data| data.nil? }
+      user_values =  user_parser.parse_row(row).reject { |_, data| data.nil? }
+      
+      user_values["custom_field_values"] = 
+        custom_field_parser.parse_row(row).reject { |_, data| data.nil? }
 
       
       user = User.find_by_mail(user_values["mail"])
       unless user
-        
         user = User.new({
           language: Setting.default_language,
         }.merge(user_values))        
         user.login = generate_login(user)
-
-        p user
-        
 
         if (!user.save()) then
           logger.info(user.errors.full_messages)
@@ -178,46 +129,6 @@ class UserImportController < ApplicationController
     count = User.where("login like ?", "#{login}%").count
     count > 0 ? "#{login}#{count}" : login
   end
-
-  def re2
-
-
-    @handle_count = 0
-    @failed_count = 0
-    @failed_rows = Hash.new
-
-    CSV.foreach(tmpfile.path, {:headers=>true, :encoding=>encoding, :quote_char=>wrapper, :col_sep=>splitter}) do |row|
-      user = User.find_by_login(row[attrs_map["login"]])
-      unless user
-        user = User.new(:status => 1, :mail_notification => 0, :language => Setting.default_language)
-        user.login = row[attrs_map["login"]]
-        user.password = row[attrs_map["password"]]
-        user.password_confirmation = row[attrs_map["password"]]
-        user.lastname = row[attrs_map["lastname"]]
-        user.firstname = row[attrs_map["firstname"]]
-        user.mail = row[attrs_map["mail"]]
-        user.admin = row[attrs_map["admin"]]
-      else
-        flash.now[:warning] = l(:message_unique_filed_duplicated)
-        @failed_count += 1
-        @failed_rows[@handle_count + 1] = row
-      end
-
-      if (!user.save(:validate => false)) then
-        logger.info(user.errors.full_messages)
-        @failed_count += 1
-        @failed_rows[@handle_count + 1] = row
-      end
-
-      @handle_count += 1
-    end # do
-
-    if @failed_rows.size > 0
-      @failed_rows = @failed_rows.sort
-      @headers = @failed_rows[0][1].headers
-    end
-  end
-
   
 
 end
