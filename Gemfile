@@ -1,1 +1,2 @@
 gem 'rchardet'
+gem 'slim'

@@ -5,25 +5,75 @@
 
 <h2><%= t(:label_user_import_result) %></h2>
 <p><%= t(:label_user_result_notice, { :upload_count => @handle_count, :success_count => @handle_count - @failed_count } ) %></p>
-
 <hr/>
+<%= form_tag({action: "finish"}) do %>
+    <h3><%= t(:user_imported, {imported_count: @imported.count})%></h3>
+
+    <fieldset>
+        <legend>Standardgruppen setzen</legend>
+            <%= select_tag 'default_group_ids', options_for_select(@groups), multiple: true, style: "width: 100%" %>
+    </fieldset>
+    
+    <h4>Importierte Benutzer</h4>
+    <table class="list">
+        <thead>
+            <tr>
+            <th><%= t(:login) %></th>
+            <th><%= t(:firstname) %></th>
+            <th><%= t(:lastname) %></th>
+            <th><%= t(:email) %></th>
+            <td><%= t(:additional_groups) %></th>
+            </tr>
+        </thead>
+        <tbody>
+            <% @imported.each do |line, row, user| %>
+            
+            <tr>
+                <th><%= user.login %></th>
+                <td><%= user.firstname %></td>
+                <td><%= user.lastname %></td>
+                <td><%= user.mail %></td>
+                
+                <td>                
+                <%= hidden_field_tag "users[#{user.id}][id]", user.id %>
+                <%= select_tag "users[#{user.id}][group_ids]", options_for_select(@groups), multiple: true, style: "width: 100%"%></td>
+            </tr>
+            <% end %>
+        </tbody>
+    </table>
+    <%= submit_tag %>
+<% end %>
 
 <% if @failed_count > 0 %>
   <%= t(:label_user_result_failed, { :failed_count => @failed_count } ) %>
 <table class="list">
     <thead><tr>
         <th>#</th>
+        <th><%=t(:error) %></th>
         <% @headers.each do |column| %>
           <th><%= column %></th>
         <% end %>
     </tr></thead>
     <tbody>
-    <% @failed_rows.each do |id, row| -%>
+    <% @failed_rows.each do |line, row, errors| -%>
     <tr class="<%= cycle("odd", "even") %>">
-        <td><%= id %></td>
+        <td><%= line %></td>
+        <td>
+            <ul>
+            <% errors.each do |error| %>
+                <li><%= error %></li>
+            <% end %>
+            </ul>
+        </td>
         <% row.each do |column| %><%= content_tag 'td', column[1] %><% end %>
     </tr>
     <% end %>
     </tbody>
 </table>
 <% end %>
+
+<script>
+(function ($) {
+    $("select[multiple]").select2();
+}(jQuery));
+</script>

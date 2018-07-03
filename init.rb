@@ -1,6 +1,7 @@
 require 'redmine'
 require_dependency 'custom_fields_helper'
 require 'csv_parser'
+require 'login_generator'
 
 Redmine::Plugin.register :redmine_user_import do
   name 'Redmine User Import plugin'
@@ -14,3 +15,14 @@ Redmine::Plugin.register :redmine_user_import do
   # caption localization does not work.
   menu :account_menu, :user_import, { :controller => 'user_import', :action => 'index' }, :caption => :user_import, :before => :logout, :if => Proc.new {User.current.admin?}
 end
+
+
+class IncludeSelect2ViewListener < Redmine::Hook::ViewListener
+
+  # Adds javascript and stylesheet tags
+  def view_layouts_base_html_head(context)
+      javascript_include_tag('https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.6-rc.0/js/select2.min.js') +
+      stylesheet_link_tag('https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.6-rc.0/css/select2.min.css')
+  end
+end
+  

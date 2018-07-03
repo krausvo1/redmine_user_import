@@ -6,7 +6,7 @@ class UserImportController < ApplicationController
   helper :custom_fields
 
 
-  USER_ATTRS = [:lastname, :firstname, :mail]
+  USER_ATTRS = [:firstname, :lastname, :mail]
 
 
   def index
@@ -95,7 +95,8 @@ class UserImportController < ApplicationController
 
     @handle_count = 0
     @line_count = 1
-    @failed_rows = Hash.new
+    @failed_rows = []
+    @imported = []
 
     CSV.foreach(tmpfile.path, {:headers=>true, :encoding=>encoding, :quote_char=>wrapper, :col_sep=>splitter}) do |row|
       user_values =  user_parser.parse_row(row).reject { |_, data| data.nil? }
@@ -104,7 +105,7 @@ class UserImportController < ApplicationController
         custom_field_parser.parse_row(row).reject { |_, data| data.nil? }
 
       
-      user = User.find_by_mail(user_values["mail"])
+      user =  User.find_by_login(user_values["login"]) if (user_values["login"]) 
       unless user
         user = User.new({
           generate_password: true,
@@ -112,13 +113,14 @@ class UserImportController < ApplicationController
           mail_notification: Setting.default_notification_option,
           language: Setting.default_language,
         }.merge(user_values))        
-        user.login = generate_login(user)
+        user.login = RedmineUserImport::LoginGenerator.for_user(user)
 
         if user.save
           Mailer.account_information(user, user.password).deliver
+          @imported << [@line_count, row, user]
         else
           logger.info(user.errors.full_messages)
-          @failed_rows[@line_count] = row
+          @failed_rows << [@line_count, row, user.errors.full_messages] 
         end
         
         @handle_count += 1
@@ -132,21 +134,27 @@ class UserImportController < ApplicationController
     @failed_count = @failed_rows.size
     if @failed_count > 0
       #failed_rows = @failed_rows.sort
-      @headers = @failed_rows.values.first.headers
+      @headers = @failed_rows.first[1].headers
     end
+
+    @groups = Group.givable.sort.map { |g| [g.name, g.id]}
 #    render json: {count: @handle_count, failed: @failed_rows}
   end
 
-  def generate_login(user) 
-    login = prepare_name(user.firstname[0])[0] + prepare_name(user.lastname)
+  def finish
+    users = params["users"] || []
+    default_groups = params["default_group_ids"].map &:to_i
 
-    count = User.where("login like ?", "#{login}%").count
-    count > 0 ? "#{login}#{count}" : login
+    @users = users.map do |user_id, user_params|
+      user = User.find(user_id)
+      if user
+        user_groups = (user_params["group_ids"] || []).map &:to_i
+        user.group_ids = Set.new(user.group_ids).merge(default_groups).merge(user_groups)
+        user.save
+      end
+      
+      user
+    end
   end
 
-  def prepare_name(str)
-    I18n.transliterate(str)
-        .gsub(/[^a-z0-9_\-@\.]/i, '')
-        .capitalize()
-  end
 end
