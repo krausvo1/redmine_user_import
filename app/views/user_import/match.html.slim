@@ -1,0 +1,54 @@
+- html_title (:user_import)
+= content_for :ehader_tags do
+  = stylesheet_link_tag 'importer', plugin: 'redmine_user_import'
+
+h2= t(:label_user_match_columns)
+= form_tag({action: 'result'}, {multipart: true}) do
+  fieldset
+    legend Standardgruppen für neue Nutzer
+    = render partial: 'group_select', locals: {name: "default_group_ids", groups: @groups}
+  fieldset.tabular
+    legend= t(:label_user_match_select)
+    table
+      thead
+        tr
+          th Regel
+          - @attrs.each do |attr, _|
+            th= attr
+          
+          - @custom_required.each do |field|
+            th= custom_field_name_tag(field)
+          
+      tbody
+        - (1..3).each do |i|
+          tr
+            th= i
+            - @attrs.each do |attr, column|
+              td= select_tag "fields_map[user][#{column}][]", options_for_select(prefix_options(@headers, "csv"), column ), include_blank: true
+
+            - @custom_required.each do |field|
+              td
+                = select_tag "fields_map[custom_fields]#{field.id}][]", grouped_options_for_select({"CSV-Felder" => prefix_options(@headers, "csv"), "Vordefinierte Werte" => prefix_options(field.possible_values, "val")}, field.id ), include_blank: true
+
+  = submit_tag t(:button_user_submit)
+  hr
+  h2= t(:label_user_toplines, {original_filename: @original_filename})
+  table.list
+    thead
+      tr
+        - @headers.each do |column|
+          th= column
+        th Gruppen
+    tbody
+      - @samples.each.with_index do |sample, i|
+        tr(class=cycle("odd", "even"))
+          - sample.each do |column|
+            td= column[1]
+          td
+            -# hidden_field_tag "row[#{i}][id]", i
+            = render partial: 'group_select', locals: {name: "row_group_ids[#{i}]", groups: @groups}
+
+javascript:
+  (function ($) {
+      $("select[multiple]").select2();
+  }(jQuery));

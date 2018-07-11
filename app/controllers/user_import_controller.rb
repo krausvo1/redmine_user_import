@@ -70,6 +70,8 @@ class UserImportController < ApplicationController
       .map(&:custom_field)
 
     @header_options = @headers.map { |h| ["#csv|{h}", h]}
+    
+    @groups = Group.givable.sort.map { |g| [g.name, g.id]}
   end
 
   def result
@@ -97,8 +99,13 @@ class UserImportController < ApplicationController
     @line_count = 1
     @failed_rows = []
     @imported = []
+    
+    row_group_ids = params["row_group_ids"] || {}
+    default_groups = (params["default_group_ids"] || []).map &:to_i
 
-    CSV.foreach(tmpfile.path, {:headers=>true, :encoding=>encoding, :quote_char=>wrapper, :col_sep=>splitter}) do |row|
+
+
+    CSV.foreach(tmpfile.path, {:headers=>true, :encoding=>encoding, :quote_char=>wrapper, :col_sep=>splitter}).with_index do |row, index|
       user_values =  user_parser.parse_row(row).reject { |_, data| data.nil? }
       
       user_values["custom_field_values"] = 
@@ -113,9 +120,17 @@ class UserImportController < ApplicationController
           mail_notification: Setting.default_notification_option,
           language: Setting.default_language,
         }.merge(user_values))        
+
+        # generate user login if not set
         user.login = RedmineUserImport::LoginGenerator.for_user(user)
+        
 
         if user.save
+          # set user groups for new user
+          p row_group_ids
+          user_groups = (row_group_ids[index.to_s] || []).map &:to_i
+          user.group_ids = Set.new(default_groups).merge(user_groups)
+
           Mailer.account_information(user, user.password).deliver
           @imported << [@line_count, row, user]
         else
@@ -137,7 +152,6 @@ class UserImportController < ApplicationController
       @headers = @failed_rows.first[1].headers
     end
 
-    @groups = Group.givable.sort.map { |g| [g.name, g.id]}
 #    render json: {count: @handle_count, failed: @failed_rows}
   end
 

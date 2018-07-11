@@ -20,7 +20,7 @@ de:
   label_user_import_result: "Ergebnis des Imports"
   label_user_result_notice: "%{upload_count} Benutzer verabeitet. %{success_count} Benutzer erfolgreich importiert."
   label_user_result_failed: "Fehler in %{failed_count} Zeilen:"
-  message_unique_filed_duplicated: "Unique field \"login\" has duplicate record"
+  message_unique_filed_duplicated: "Der Loginname ist bereits vorhanden."
   error: "Fehler"
 
   i18n:

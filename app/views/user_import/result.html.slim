@@ -1,0 +1,9 @@
+== html_title t(:user_import)
+= content_for :header_tags do
+  = stylesheet_link_tag 'importer', plugin: 'redmine_user_import'
+
+h2= t(:label_user_import_result)
+p= t(:label_user_result_notice)
+hr
+
+  h3= t(:user_imported, {imported_count: @imported-count})
