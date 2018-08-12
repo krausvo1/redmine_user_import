@@ -2,6 +2,7 @@ require 'redmine'
 require_dependency 'custom_fields_helper'
 require 'csv_parser'
 require 'login_generator'
+require 'csv_user_export'
 
 Redmine::Plugin.register :redmine_user_import do
   name 'Redmine User Import plugin'

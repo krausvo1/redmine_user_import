@@ -63,11 +63,7 @@ class UserImportController < ApplicationController
       [t("field_#{attr}"), attr]
     end
 
-    @custom_required = User
-      .new
-      .custom_field_values
-      .select(&:required?)
-      .map(&:custom_field)
+    @custom_required = UserCustomField.where(is_required: true)
 
     @header_options = @headers.map { |h| ["#csv|{h}", h]}
     
@@ -147,21 +143,6 @@ class UserImportController < ApplicationController
     end
   end
 
-  def export()
-    users = User.all
-
-    fields = EXPORT_COLUMNS.map { |col| [col, l("field_#{col}"), ->(user) {user.send(col)}]}
-    fields += UserCustomField.all.map { |col| [col.name, col.name, ->(user) { user.custom_value_for(col)}]}
-
-    send_data(UserImportController::export_users_to_csv(users,
-      fields: fields
-      ),
-      type: 'text/csv; header=present',
-      filename: "#{Date.today()}_users.csv"
-    )
-    
-
-  end
 
   EXPORT_COLUMNS = [
     :login,
@@ -175,42 +156,18 @@ class UserImportController < ApplicationController
     :groups
   ]
   
-  USER_STATUS = [
-    :status_active,
-    :status_registered,
-    :status_locked
-  ]
+  def export()
+    users = User.all
 
-  CSV_COLUMN_FORMATTERS = {
-      status: ->(status) { l(USER_STATUS[status]) },
-      groups: ->(groups) { groups.join(", ") }
-  }
+    fields = EXPORT_COLUMNS.map { |col| [col, l("field_#{col}"), ->(user) {user.send(col)}]}
+    fields += UserCustomField.all.map { |col| [col.name, col.name, ->(user) { user.custom_value_for(col)}]}
 
-  private
-  def self.export_users_to_csv(users, options = {}) 
-    fields = options[:fields] || []
-
-    CSV.generate(
-      encoding: options[:encoding] || 'utf-8',
-      force_quotes: true
-      ) do |csv|
-      # export csv header p
-      csv << fields.map { |_, column_name,_| column_name }
-
-      # export users
-      users
-        .map { |u| user_to_csv(u, fields)}
-        .reduce(csv, :<<)
-    end
-  end
-
-  IDENTITY = ->(x) { x }
-
-  def self.user_to_csv(user, fields)
-    fields.map do |column, _, get_value|
-      formatter = CSV_COLUMN_FORMATTERS[column] || IDENTITY
-      formatter.(get_value.(user))
-    end
+    send_data(RedmineUserImport::CsvUserExport::export_users_to_csv(users,
+      fields: fields
+      ),
+      type: 'text/csv; header=present',
+      filename: "#{Date.today()}_users.csv"
+    )
   end
 
 end
