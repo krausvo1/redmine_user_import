@@ -147,19 +147,69 @@ class UserImportController < ApplicationController
     end
   end
 
-  def finish
-    users = params["users"] || []
-    default_groups = params["default_group_ids"].map &:to_i
+  def export()
+    users = User.all
 
-    @users = users.map do |user_id, user_params|
-      user = User.find(user_id)
-      if user
-        user_groups = (user_params["group_ids"] || []).map &:to_i
-        user.group_ids = Set.new(user.group_ids).merge(default_groups).merge(user_groups)
-        user.save
-      end
-      
-      user
+    fields = EXPORT_COLUMNS.map { |col| [col, l("field_#{col}"), ->(user) {user.send(col)}]}
+    fields += UserCustomField.all.map { |col| [col.name, col.name, ->(user) { user.custom_value_for(col)}]}
+
+    send_data(UserImportController::export_users_to_csv(users,
+      fields: fields
+      ),
+      type: 'text/csv; header=present',
+      filename: "#{Date.today()}_users.csv"
+    )
+    
+
+  end
+
+  EXPORT_COLUMNS = [
+    :login,
+    :firstname,
+    :lastname,
+    :mail,
+    :admin,
+    :created_on,
+    :last_login_on,
+    :status,
+    :groups
+  ]
+  
+  USER_STATUS = [
+    :status_active,
+    :status_registered,
+    :status_locked
+  ]
+
+  CSV_COLUMN_FORMATTERS = {
+      status: ->(status) { l(USER_STATUS[status]) },
+      groups: ->(groups) { groups.join(", ") }
+  }
+
+  private
+  def self.export_users_to_csv(users, options = {}) 
+    fields = options[:fields] || []
+
+    CSV.generate(
+      encoding: options[:encoding] || 'utf-8',
+      force_quotes: true
+      ) do |csv|
+      # export csv header p
+      csv << fields.map { |_, column_name,_| column_name }
+
+      # export users
+      users
+        .map { |u| user_to_csv(u, fields)}
+        .reduce(csv, :<<)
+    end
+  end
+
+  IDENTITY = ->(x) { x }
+
+  def self.user_to_csv(user, fields)
+    fields.map do |column, _, get_value|
+      formatter = CSV_COLUMN_FORMATTERS[column] || IDENTITY
+      formatter.(get_value.(user))
     end
   end
 
