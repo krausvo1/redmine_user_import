@@ -28,7 +28,7 @@ class UserImportController < ApplicationController
 
     # save import file
     @original_filename = file.original_filename
-    tmpfile = Tempfile.new("redmine_user_importer", :encoding =>'ascii-8bit')
+    tmpfile = Tempfile.new("redmine_user_importer", encoding: 'ascii-8bit')
     if tmpfile
       data = file.read
       encoding ||= CharDet.detect(data)["encoding"]
@@ -50,7 +50,7 @@ class UserImportController < ApplicationController
     session[:importer_encoding] = encoding
     # display content
     begin
-      CSV.open(tmpfile.path, {:headers=>true, :encoding=>encoding, :quote_char=>wrapper, :col_sep=>splitter}) do |csv|
+      CSV.open(tmpfile.path, headers: true, encoding: encoding, quote_char: wrapper, col_sep: splitter) do |csv|
         @samples = csv.read
         @headers = csv.headers  
       end
@@ -104,9 +104,7 @@ class UserImportController < ApplicationController
     row_group_ids = params["row_group_ids"] || {}
     default_groups = (params["default_group_ids"] || []).map &:to_i
 
-
-
-    CSV.foreach(tmpfile.path, {:headers=>true, :encoding=>encoding, :quote_char=>wrapper, :col_sep=>splitter}).with_index do |row, index|
+    CSV.foreach(tmpfile.path, headers: true, encoding: encoding, quote_char: wrapper, col_sep: splitter).with_index do |row, index|
       user_values =  user_parser.parse_row(row).reject { |_, data| data.nil? }
       
       user_values["custom_field_values"] = 
