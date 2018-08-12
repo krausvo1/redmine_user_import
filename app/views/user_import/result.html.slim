@@ -1,13 +1,11 @@
-== html_title t(:user_import)
-= content_for :header_tags do
-  = stylesheet_link_tag 'importer', plugin: 'redmine_user_import'
+- html_title t(:user_import)
+
 
 h2= t(:label_user_import_result)
-p= t(:label_user_result_notice)
+p= t(:label_user_result_notice, upload_count: @handle_count, success_count: @handle_count - @failed_count)
 hr
 
-h3= t(:user_imported, {imported_count: @imported.count})
-h4 Importierte Benutzer
+h3 Importierte Benutzer
 table.list
   thead
     tr
@@ -19,14 +17,14 @@ table.list
     tbody
       - @imported.each do |line, row, user|
         tr
-          th= user.login %></th>
-            td= user.firstname
-            td= user.lastname
-            td= user.mail
-            td= user.groups.join(", ")
+          th= user.login
+          td= user.firstname
+          td= user.lastname
+          td= user.mail
+          td= user.groups.join(", ")
   
 - if @failed_count > 0
-  p= t(:label_user_result_failed, { :failed_count => @failed_count } )
+  p= t(:label_user_result_failed, failed_count: @failed_count  )
   table.list
     thead
       tr
@@ -42,5 +40,5 @@ table.list
             ul
             - errors.each do |error|
               li= error
-          row.each do |column|
+          - row.each do |column|
             td= column[1]
