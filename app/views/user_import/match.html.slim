@@ -20,7 +20,7 @@ h2= t(:label_user_match_columns)
             th= custom_field_name_tag(field)
           
       tbody
-        - (1..3).each do |i|
+        - (1..UserImportController::RULE_COUNT).each do |i|
           tr
             th= i
             - @attrs.each do |attr, column|

@@ -7,6 +7,7 @@ class UserImportController < ApplicationController
 
 
   USER_ATTRS = [:firstname, :lastname, :mail]
+  RULE_COUNT = 1
 
 
   def index
