@@ -6,4 +6,41 @@ h2= t(:label_user_import_result)
 p= t(:label_user_result_notice)
 hr
 
-  h3= t(:user_imported, {imported_count: @imported-count})
+h3= t(:user_imported, {imported_count: @imported.count})
+h4 Importierte Benutzer
+table.list
+  thead
+    tr
+      th= t(:login)
+      th= t(:firstname)
+      th= t(:lastname)
+      th= t(:email)
+      th Gruppen
+    tbody
+      - @imported.each do |line, row, user|
+        tr
+          th= user.login %></th>
+            td= user.firstname
+            td= user.lastname
+            td= user.mail
+            td= user.groups.join(", ")
+  
+- if @failed_count > 0
+  p= t(:label_user_result_failed, { :failed_count => @failed_count } )
+  table.list
+    thead
+      tr
+        th #
+        th= t(:error)
+        - @headers.each do |column|
+          th= column
+    tbody
+      - @failed_rows.each do |line, row, errors|
+        tr class=cycle("odd", "even")
+          td= line 
+          td
+            ul
+            - errors.each do |error|
+              li= error
+          row.each do |column|
+            td= column[1]
