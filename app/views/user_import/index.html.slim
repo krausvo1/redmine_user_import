@@ -23,4 +23,9 @@ h2= t(:user_import)
       label =t(:label_user_upload_wrapper)
       = text_field_tag "wrapper", '"', size: 3, maxlength: 1
 
+hr
+h2 Benutzer exportieren
+
+= link_to "Als .csv exportieren", {action: :export}
+
 
