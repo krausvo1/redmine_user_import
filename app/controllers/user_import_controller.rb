@@ -5,12 +5,11 @@ class UserImportController < ApplicationController
   before_action :require_admin
   helper :custom_fields
 
-
   USER_ATTRS = [:firstname, :lastname, :mail]
   RULE_COUNT = 1
 
-
   def index
+    # do nothing, just render action's default template
   end
 
   def match
