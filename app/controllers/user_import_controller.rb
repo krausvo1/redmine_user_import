@@ -111,7 +111,6 @@ class UserImportController < ApplicationController
       
       user_values["custom_field_values"] = 
         custom_field_parser.parse_row(row).reject { |_, data| data.nil? }
-
       
       user =  User.find_by_login(user_values["login"]) if (user_values["login"]) 
       unless user
@@ -124,7 +123,6 @@ class UserImportController < ApplicationController
 
         # generate user login if not set
         user.login = RedmineUserImport::LoginGenerator.for_user(user)
-        
 
         if user.save
           # set user groups for new user
@@ -144,16 +142,12 @@ class UserImportController < ApplicationController
       
       @line_count += 1
     end
-
-    
     
     @failed_count = @failed_rows.size
     if @failed_count > 0
       #failed_rows = @failed_rows.sort
       @headers = @failed_rows.first[1].headers
     end
-
-#    render json: {count: @handle_count, failed: @failed_rows}
   end
 
   def finish
