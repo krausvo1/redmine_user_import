@@ -1,0 +1,75 @@
+.stepnav {
+    padding: 0 1em;
+    margin: 0 auto;
+    font-weight: bold;
+}
+
+ol.steps {
+    border-top: 0;
+    width: 100%;
+    height: 40px;
+    display: block;
+    position: relative;
+    margin: -15px auto 0;
+    top: -10px;
+    left: 2em;
+    font-weight: normal;
+}
+
+ol.steps a, ol.steps a:hover, ol.steps a:visited {
+    color: inherit;
+    text-decoration: none;
+}
+
+ol.steps li {
+    border: 1px solid #c3c1bd;
+    background: #E7E7E7;
+    margin: 0 1.5% !important;
+    padding: 5px;
+    width: 22%;
+    display: block;
+    float: left;
+    position: relative;
+    text-align: center;
+}
+
+ol.steps li:before, ol.steps li:after {
+    left: 100%;
+    top: 50%;
+    border: solid transparent;
+    content: " ";
+    height: 0;
+    width: 0;
+    position: absolute;
+    pointer-events: none;
+}
+
+ol.steps li:before {
+    border-color: transparent;
+    border-left-color: #c3c1bd;
+    border-width: 8px;
+    margin-top: -8px;
+}
+
+
+ol.steps li:after {
+    border-color: transparent;
+    border-left-color: #E7E7E7;
+    border-width: 7px;
+    margin-top: -7px;
+}
+
+ol.steps li.active:after {
+    border-left-color: #c3c1bd !important;
+}
+
+ol.steps li.active {
+    font-weight: bold;
+    background: #c3c1bd !important;
+}
+
+/* Match Seite */
+
+.marginTop {
+    margin-top: 1em;
+}

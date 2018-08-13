@@ -2,9 +2,15 @@ de:
   field_groups: "Gruppen"
 
   user_import: "Benutzer importieren"
+
+  label_user_step1: "1. Hochladen"
+  label_user_step2: "2. Spalten zuordnen"
+  label_user_step3: "3. Benutzer importiert"
+
   # index view
-  label_user_upload_notice: "Eine CSV zum Import auswählen. Die erste Zeile muss eine Kopfzeile mit den Spaltennamen sein."
-  label_user_upload_format: "Einstellungen zum Importieren der Datei."
+  label_user_upload_notice: "CSV Import"
+  label_user_upload_help_step1: "Die erste Zeile, der CSV, sollte die Spaltennamen enthalten. Es ist bedeutungslos in welcher reihenfolgen, die Spalten sind. Im zweiten schritt wird abgefragt, welche bedeutung sie haben."
+  label_user_upload_format: "CSV Format"
   label_user_upload_encoding: "Zeichenformat"
   label_user_upload_splitter: "Trennzeichen zwischen Feldern"
   label_user_upload_wrapper: "Inhalte sind eingschlossen zwischen"
@@ -12,8 +18,14 @@ de:
 
   # match view
   label_user_match_columns: "Spalten zuordnen"
-  label_user_match_select: "Spalte auswählen"
-  label_user_toplines: "Alle Einträge von %{original_filename}:"
+  label_user_upload_help_step2: "
+    Bitte beachte: Dieser import gilt für neue Benutzer.
+    Vorhandene Benutzer werden nicht verändert! Dabei spielt die Email Adresse als identifikation,
+    sie darf nur einmalig vergeben werden. (Bei Famielen Mitglieder, die die selbe Email Adresse haben,
+    bitte nach einer neuen Email Adresse anfragen)"
+  label_user_upload_help_step2_multi: "Diese CSV kann ruhig mehrmal eingelesen werden. Bis alle Benutzer angelegt wurden."
+  label_user_standard: "Standardgruppe"
+  label_user_toplines: "Vorschau '%{original_filename}':"
   message_missing_imported_file: "Die importierte Date fehlt"
   button_user_submit: "Benutzer importieren"
 

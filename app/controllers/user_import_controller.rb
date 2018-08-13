@@ -1,6 +1,21 @@
 require 'tempfile'
 require 'csv'
 
+module RedmineUserImport
+  module Hooks
+    class UserImport < Redmine::Hook::ViewListener
+      def view_layouts_base_html_head(context = {})
+        if context[:controller] && (context[:controller].is_a?(UserImportController))
+          return '' +
+               stylesheet_link_tag('user_import', plugin: 'redmine_user_import')
+        else
+          return ''
+        end
+      end
+    end
+  end
+end
+
 class UserImportController < ApplicationController
   before_action :require_admin
   helper :custom_fields
@@ -10,6 +25,7 @@ class UserImportController < ApplicationController
 
   def index
     # do nothing, just render action's default template
+
   end
 
   def match

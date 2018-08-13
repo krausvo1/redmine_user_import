@@ -2,6 +2,14 @@
 
 
 h2= t(:label_user_import_result)
+
+div.stepnav
+  = "Schritte"
+  ol.steps
+    li = link_to t(:label_user_step1), {action: :index}
+    li = t(:label_user_step2)
+    li.active = t(:label_user_step3)
+
 p= t(:label_user_result_notice, upload_count: @handle_count, success_count: @handle_count - @failed_count)
 hr
 
