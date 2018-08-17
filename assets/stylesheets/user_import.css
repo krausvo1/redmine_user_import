@@ -85,11 +85,6 @@ table.list.failed .title span {
 
 table.list.failed .result_errors {
     text-align: left;
-    color: black;
-}
-
-table.list.failed .user {
-    text-align: left;
     color: red;
 }
 
