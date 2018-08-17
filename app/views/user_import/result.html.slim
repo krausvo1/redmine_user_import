@@ -10,43 +10,56 @@ div.stepnav
     li = t(:label_user_step2)
     li.active = t(:label_user_step3)
 
-p= t(:label_user_result_notice, upload_count: @handle_count, success_count: @handle_count - @failed_count)
-hr
+- success_count = @handle_count - @failed_count
+p.marginTop
+  = t(:label_user_result_success, success_count: success_count).html_safe
+  br
+  = t(:label_user_result_failed, failed_count: @failed_count).html_safe
+  br
+  = t(:label_user_result_sum, upload_count: @handle_count).html_safe
 
-h3 Importierte Benutzer
-table.list
-  thead
-    tr
-      th= t(:login)
-      th= t(:firstname)
-      th= t(:lastname)
-      th= t(:email)
-      th Gruppen
-    tbody
-      - @imported.each do |line, row, user|
-        tr
-          th= user.login
-          td= user.firstname
-          td= user.lastname
-          td= user.mail
-          td= user.groups.join(", ")
-  
+- if success_count > 0
+  h2 Importierte Benutzer
+  table.list.users
+    thead
+      tr.text-left
+        th= t(:field_login)
+        th= t(:firstname)
+        th= t(:lastname)
+        th= t(:email)
+        th Gruppen
+      tbody
+        - @imported.each do |line, row, user|
+          tr.user.active
+            td.username
+              = avatar user, :size => "14"
+              = link_to_user(user, :format => :username).gsub('href=', 'target="_usertab" href=').html_safe
+            td.firstname = user.firstname
+            td.lastname = user.lastname
+            td.email = mail_to(user.mail, nil, :encode => 'javascript')
+            td.text-left = user.groups.join(", ")
+
 - if @failed_count > 0
-  p= t(:label_user_result_failed, failed_count: @failed_count  )
-  table.list
+  h2 Ignorierte Benutzer
+  table.list.failed.users
     thead
       tr
+        th colspan=(@headers.count + 1)
+          =t(:csv_columns)
+      tr
         th #
-        th= t(:error)
         - @headers.each do |column|
-          th= column
+          th=column
     tbody
       - @failed_rows.each do |line, row, errors|
-        tr class=cycle("odd", "even")
-          td= line 
-          td
-            ul
-            - errors.each do |error|
-              li= error
+        tr
+          td rowspan="2" =line
           - row.each do |column|
-            td= column[1]
+            td.user =column[1]
+        tr
+          td.result_errors colspan=(row.count)
+            = errors.join(" ◆ ")
+    tfoot
+      tr
+        td.title colspan=(@headers.count + 1)
+          = t(:label_user_upload_help_step2_multi)

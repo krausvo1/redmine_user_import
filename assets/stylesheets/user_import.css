@@ -1,3 +1,5 @@
+/* Index Site */
+
 .stepnav {
     padding: 0 1em;
     margin: 0 auto;
@@ -68,8 +70,34 @@ ol.steps li.active {
     background: #c3c1bd !important;
 }
 
-/* Match Seite */
+/* Match Site */
 
 .marginTop {
     margin-top: 1em;
+}
+
+/* resulte Site */
+
+table.list.failed .title span {
+    margin-left: 5px;
+    font-weight: normal;
+}
+
+table.list.failed .result_errors {
+    text-align: left;
+    color: black;
+}
+
+table.list.failed .user {
+    text-align: left;
+    color: red;
+}
+
+table.list.failed td,
+table.list.failed th {
+    text-align: left;
+}
+
+table.list.failed tr:nth-child(odd) td{
+    border: none;
 }

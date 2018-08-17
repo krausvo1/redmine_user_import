@@ -4,16 +4,17 @@ de:
   user_import: "Benutzer importieren"
 
   label_user_step1: "1. Hochladen"
-  label_user_step2: "2. Spalten zuordnen"
-  label_user_step3: "3. Benutzer importiert"
+  label_user_step2: "2. Spalten zuordnen & importieren"
+  label_user_step3: "3. Ergebnis auswerten"
 
   # index view
   label_user_upload_notice: "CSV Import"
-  label_user_upload_help_step1: "Die erste Zeile, der CSV, sollte die Spaltennamen enthalten. Es ist bedeutungslos in welcher reihenfolgen, die Spalten sind. Im zweiten schritt wird abgefragt, welche bedeutung sie haben."
+  label_user_upload_help_step1: "Die erste Zeile der CSV-Datei sollte die Spaltennamen enthalten. Es ist bedeutungslos in welcher Reihenfolge die Spalten aufgeführt sind.
+                                 Im nächsten Schritt wird abgefragt, welche Bedeutung sie haben."
   label_user_upload_format: "CSV Format"
   label_user_upload_encoding: "Zeichenformat"
-  label_user_upload_splitter: "Trennzeichen zwischen Feldern"
-  label_user_upload_wrapper: "Inhalte sind eingschlossen zwischen"
+  label_user_upload_splitter: "Feldtrennzeichen"
+  label_user_upload_wrapper: "Textqualifizierer"
   button_user_upload: "Datei hochladen"
 
   # match view
@@ -31,10 +32,12 @@ de:
 
   # result view
   label_user_import_result: "Ergebnis des Imports"
-  label_user_result_notice: "%{upload_count} Benutzer verabeitet. %{success_count} Benutzer erfolgreich importiert."
-  label_user_result_failed: "Fehler in %{failed_count} Zeilen:"
+  label_user_result_sum: "Gesammt: <strong>%{upload_count}</strong>"
+  label_user_result_success: "Erfolgreich: <strong>%{success_count}</strong>"
+  label_user_result_failed: "Fehlerhaft: <strong>%{failed_count}</strong>"
   message_unique_filed_duplicated: "Der Loginname ist bereits vorhanden."
   error: "Fehler"
+  csv_columns: "CSV Spalten:"
 
   i18n:
     transliterate:
