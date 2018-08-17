@@ -10,7 +10,7 @@ h2= t(:user_import)
       ol.steps
         li.active = t(:label_user_step1)
         li = t(:label_user_step2)
-        li = t(:label_user_step3)
+        li = t(:label_user_step1)
 
     div.splitcontent
       div.splitcontentleft
@@ -41,6 +41,5 @@ p
 h2 Benutzer exportieren
 
 div.box
-  = link_to "Als .csv exportieren", {action: :export}, {:class => "button"}
-
-
+  p.buttons
+    = link_to "Als CSV exportieren", {action: :export}, {:class => "csv"}
