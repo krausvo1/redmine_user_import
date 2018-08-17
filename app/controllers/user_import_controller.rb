@@ -178,8 +178,9 @@ class UserImportController < ApplicationController
     fields = EXPORT_COLUMNS.map { |col| [col, l("field_#{col}"), ->(user) {user.send(col)}]}
     fields += UserCustomField.all.map { |col| [col.name, col.name, ->(user) { user.custom_value_for(col)}]}
 
-    send_data(UserImportController::export_users_to_csv(users,
-      fields: fields
+    send_data(UserImportController::export_users_to_csv(
+        users,
+        fields: fields
       ),
       type: 'text/csv; header=present',
       filename: "#{Date.today()}_users.csv"
@@ -204,10 +205,7 @@ class UserImportController < ApplicationController
   def self.export_users_to_csv(users, options = {}) 
     fields = options[:fields] || []
 
-    CSV.generate(
-      encoding: options[:encoding] || 'utf-8',
-      force_quotes: true
-      ) do |csv|
+    CSV.generate({ encoding: options[:encoding] || 'utf-8', force_quotes: true, col_sep: ';' }) do |csv|
       # export csv header p
       csv << fields.map { |_, column_name,_| column_name }
 
