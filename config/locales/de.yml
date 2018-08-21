@@ -32,7 +32,7 @@ de:
 
   # result view
   label_user_import_result: "Ergebnis des Imports"
-  label_user_result_sum: "Gesammt: <strong>%{upload_count}</strong>"
+  label_user_result_sum: "Gesamt: <strong>%{upload_count}</strong>"
   label_user_result_success: "Erfolgreich: <strong>%{success_count}</strong>"
   label_user_result_failed: "Fehlerhaft: <strong>%{failed_count}</strong>"
   message_unique_filed_duplicated: "Der Loginname ist bereits vorhanden."
