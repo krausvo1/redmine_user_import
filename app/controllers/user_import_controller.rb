@@ -117,6 +117,9 @@ class UserImportController < ApplicationController
         # generate user login if not set
         user.login = RedmineUserImport::LoginGenerator.for_user(user)
 
+        # set default preferences
+        user.pref[:comments_sorting] = 'desc';
+
         if user.save
           # set user groups for new user
           p row_group_ids
