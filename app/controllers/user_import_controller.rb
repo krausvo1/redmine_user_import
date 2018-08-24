@@ -1,6 +1,21 @@
 require 'tempfile'
 require 'csv'
 
+module RedmineUserImport
+  module Hooks
+    class UserImport < Redmine::Hook::ViewListener
+      def view_layouts_base_html_head(context = {})
+        if context[:controller] && (context[:controller].is_a?(UserImportController))
+          return '' +
+               stylesheet_link_tag('user_import', plugin: 'redmine_user_import')
+        else
+          return ''
+        end
+      end
+    end
+  end
+end
+
 class UserImportController < ApplicationController
   before_action :require_admin
   helper :custom_fields
@@ -10,6 +25,7 @@ class UserImportController < ApplicationController
 
   def index
     # do nothing, just render action's default template
+
   end
 
   def match
@@ -165,8 +181,9 @@ class UserImportController < ApplicationController
     fields = EXPORT_COLUMNS.map { |col| [col, l("field_#{col}"), ->(user) {user.send(col)}]}
     fields += UserCustomField.all.map { |col| [col.name, col.name, ->(user) { user.custom_value_for(col)}]}
 
-    send_data(UserImportController::export_users_to_csv(users,
-      fields: fields
+    send_data(UserImportController::export_users_to_csv(
+        users,
+        fields: fields
       ),
       type: 'text/csv; header=present',
       filename: "#{Date.today()}_users.csv"
@@ -191,10 +208,7 @@ class UserImportController < ApplicationController
   def self.export_users_to_csv(users, options = {}) 
     fields = options[:fields] || []
 
-    CSV.generate(
-      encoding: options[:encoding] || 'utf-8',
-      force_quotes: true
-      ) do |csv|
+    CSV.generate({ encoding: options[:encoding] || 'utf-8', force_quotes: true, col_sep: ';' }) do |csv|
       # export csv header p
       csv << fields.map { |_, column_name,_| column_name }
 

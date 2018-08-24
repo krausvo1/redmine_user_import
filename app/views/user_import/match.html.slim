@@ -1,12 +1,17 @@
 - html_title (:user_import)
 
 h2= t(:label_user_match_columns)
+
+div.stepnav
+  = "Schritte"
+  ol.steps
+    li = link_to t(:label_user_step1), {action: :index}
+    li.active = t(:label_user_step2)
+    li = t(:label_user_step3)
+
 = form_tag({action: 'result'}, {multipart: true}) do
-  fieldset
-    legend Standardgruppen für neue Nutzer
-    = render partial: 'group_select', locals: {name: "default_group_ids", groups: @groups}
-  fieldset.tabular
-    legend= t(:label_user_match_select)
+  p = t(:label_user_upload_help_step2)
+  div.box.marginTop
     table
       thead
         tr
@@ -27,10 +32,16 @@ h2= t(:label_user_match_columns)
             - @custom_required.each do |field|
               td
                 = select_tag "fields_map[custom_fields]#{field.id}][]", grouped_options_for_select({"CSV-Felder" => prefix_options(@headers, "csv"), "Vordefinierte Werte" => prefix_options(field.possible_values, "val")}, field.id ), include_blank: true
+    div.tabular.marginTop
+      p
+        label for="default_group_ids" = t(:label_user_standard)
+        = render partial: 'group_select', locals: {name: "default_group_ids", groups: @groups, id: "default_group_ids"}
 
   = submit_tag t(:button_user_submit)
-  hr
-  h2= t(:label_user_toplines, {original_filename: @original_filename})
+
+  h2.marginTop =t(:label_user_toplines, {original_filename: @original_filename})
+  p = t(:label_user_upload_help_step2_multi)
+
   table.list
     thead
       tr
@@ -44,9 +55,9 @@ h2= t(:label_user_match_columns)
             td= column[1]
           td
             -# hidden_field_tag "row[#{i}][id]", i
-            = render partial: 'group_select', locals: {name: "row_group_ids[#{i}]", groups: @groups}
+            = render partial: 'group_select', locals: {name: "row_group_ids[#{i}]", groups: @groups, id: "row_group_ids_#{i}"}
 
 javascript:
   (function ($) {
-      $("select[multiple]").select2();
+     $("select[multiple]").select2();
   }(jQuery));

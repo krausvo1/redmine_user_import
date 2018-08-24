@@ -1,31 +1,45 @@
 - html_title t(:user_import)
+- stylesheet_link_tag("redmine_importer.css", :plugin => "redmine_user_import", :media => "screen")
 
 h2= t(:user_import)
 
 = form_tag({action: 'match'}, {multipart: true}) do
-  
-  p
-    label =t(:label_user_upload_notice)
-  p 
-    = file_field_tag 'file', {size: 60}
-  p
-    = submit_tag t(:button_user_upload)
-  
-  fieldset.box.tabular
-    legend= t(:label_user_upload_format)
-    p
-      label =t(:label_user_upload_encoding)
-      = select_tag "encoding", options_for_select([["Automatisch erkennen", ""]] + Encoding.name_list)
-    p
-      label =t(:label_user_upload_splitter)
-      = text_field_tag "splitter", ';', size: 3, maxlength: 1
-    p
-      label =t(:label_user_upload_wrapper)
-      = text_field_tag "wrapper", '"', size: 3, maxlength: 1
+  div.box
+    div.stepnav
+      = "Schritte"
+      ol.steps
+        li.active = t(:label_user_step1)
+        li = t(:label_user_step2)
+        li = t(:label_user_step3)
 
-hr
+    div.splitcontent
+      div.splitcontentleft
+        fieldset.box.tabular
+          legend= t(:label_user_upload_notice)
+          p
+            label =t(:field_filename)
+            = file_field_tag 'file', {size: 60}
+          p
+            = t(:label_user_upload_help_step1)
+        p
+          = submit_tag t(:button_user_upload)
+      div.splitcontentright
+        fieldset.box.tabular
+          legend= t(:label_user_upload_format)
+          p
+            label =t(:label_user_upload_encoding)
+            = select_tag "encoding", options_for_select([["Automatisch erkennen", ""]] + Encoding.name_list)
+          p
+            label =t(:label_user_upload_splitter)
+            = text_field_tag "splitter", ';', size: 3, maxlength: 1
+          p
+            label =t(:label_user_upload_wrapper)
+            = text_field_tag "wrapper", '"', size: 3, maxlength: 1
+
+p
+
 h2 Benutzer exportieren
 
-= link_to "Als .csv exportieren", {action: :export}
-
-
+div.box
+  p.buttons
+    = link_to "Als CSV exportieren", {action: :export}, {:class => "csv"}
