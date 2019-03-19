@@ -1,5 +1,6 @@
 de:
   field_groups: "Gruppen"
+  field_roles: "Rollen"
 
   user_import: "Benutzer importieren"
 

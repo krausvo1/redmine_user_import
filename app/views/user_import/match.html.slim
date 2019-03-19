@@ -49,7 +49,7 @@ div.stepnav
           th= column
         th Gruppen
     tbody
-      - @samples.each_with_index do |sample, i|
+      - @samples.each.with_index do |sample, i|
         tr(class=cycle("odd", "even"))
           - sample.each do |column|
             td= column[1]

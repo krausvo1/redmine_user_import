@@ -1,5 +1,6 @@
 en:
-
+  field_roles: "Roles"
+  field_groups: "Groups"
   user_import: "User Import"
   # index view
   label_user_upload_notice: "Select a CSV file to import. Import file must have a header row."

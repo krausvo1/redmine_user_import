@@ -172,7 +172,8 @@ class UserImportController < ApplicationController
     :created_on,
     :last_login_on,
     :status,
-    :groups
+    :groups,
+    :roles
   ]
   
   def export()
@@ -198,9 +199,12 @@ class UserImportController < ApplicationController
     :status_locked
   ]
 
+  CONCAT_LIST = ->(list){list.join(", ")}
+
   CSV_COLUMN_FORMATTERS = {
       status: ->(status) { l(USER_STATUS[status]) },
-      groups: ->(groups) { groups.join(", ") }
+      groups: CONCAT_LIST,
+      roles: CONCAT_LIST,
   }
 
   IDENTITY = ->(x) { x }
